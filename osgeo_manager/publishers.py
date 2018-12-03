@@ -21,9 +21,12 @@ from geonode.people.models import Profile
 from geonode.security.views import _perms_info_json
 
 from .constants import DEFAULT_WORKSPACE, ICON_REL_PATH, SLUGIFIER
-from .log import get_logger
 from .utils import urljoin
 
+try:
+    from celery.utils.log import get_task_logger as get_logger
+except ImportError:
+    from .log import get_logger
 logger = get_logger(__name__)
 
 
@@ -88,6 +91,8 @@ class GeoserverPublisher(object):
             data=file.read(),
             headers={'Content-Type': 'application/octet-stream'},
             auth=HTTPBasicAuth(self.username, self.password))
+        message = "URL:{} STATUS:".format(url, req.status_code)
+        logger.error(message)
         if req.status_code == 201:
             return True
         return False
@@ -95,7 +100,7 @@ class GeoserverPublisher(object):
     def get_new_style_name(self, sld_name):
         sld_name = SLUGIFIER(sld_name)
         style = gs_catalog.get_style(
-            sld_name, workspace=settings.DEFAULT_WORKSPACE)
+            sld_name, workspace=DEFAULT_WORKSPACE)
         if not style:
             return sld_name
         else:
@@ -125,9 +130,9 @@ class GeoserverPublisher(object):
             sld_body,
             overwrite=overwrite,
             raw=True,
-            workspace=settings.DEFAULT_WORKSPACE)
+            workspace=DEFAULT_WORKSPACE)
         style = gs_catalog.get_style(
-            name, workspace=settings.DEFAULT_WORKSPACE)
+            name, workspace=DEFAULT_WORKSPACE)
         return style
 
     def set_default_style(self, layername, style):
@@ -172,6 +177,7 @@ class GeonodePublisher(object):
         if not resource:
             raise Exception("Cannot Find Layer In Geoserver")
         name = resource.name
+        logger.error(resource.__dict__)
         the_store = resource.store
         workspace = the_store.workspace
         layer = None
@@ -180,6 +186,7 @@ class GeonodePublisher(object):
             layer, created = Layer.objects.get_or_create(
                 name=name,
                 workspace=workspace.name,
+
                 defaults={
                     "store": the_store.name,
                     "storeType": the_store.resource_type,
@@ -188,8 +195,8 @@ class GeonodePublisher(object):
                                resource.name.encode('utf-8')),
                     "title": (resource.title or 'No title provided'),
                     "abstract":
-                    (resource.abstract
-                     or unicode(_('No abstract provided')).encode('utf-8')),
+                    (resource.abstract or
+                     unicode(_('No abstract provided')).encode('utf-8')),
                     "owner": self.owner,
                     "uuid": str(uuid.uuid4()),
                     "bbox_x0": Decimal(resource.native_bbox[0]),

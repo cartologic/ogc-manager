@@ -27,13 +27,12 @@ logger = get_logger(__name__)
 
 
 class OSGEOManager(OSGEOManagerMixin):
-    def __init__(self, package_path, is_postgis=False):
+    def __init__(self, package_path):
         self.path = package_path
-        self.is_postgis = is_postgis
-        self.get_source(is_postgis=is_postgis)
+        self.get_source()
 
-    def get_source(self, is_postgis=False):
-        with self.open_source(self.path, is_postgres=is_postgis) as source:
+    def get_source(self):
+        with self.open_source(self.path) as source:
             self.source = source
         return self.source
 
@@ -104,7 +103,7 @@ class OSGEOManager(OSGEOManagerMixin):
                          temporary=False,
                          launder=False,
                          name=None):
-        with self.open_source(connectionString, is_postgres=True) as source:
+        with self.open_source(connectionString) as source:
             layer = self.source.GetLayerByName(layername)
             assert layer
             layer = OSGEOLayer(layer, source)
@@ -129,7 +128,7 @@ class OSGEOManager(OSGEOManagerMixin):
     def postgis_as_gpkg(connectionString, dest_path, layernames=None):
         if not dest_path.endswith(".gpkg"):
             dest_path += ".gpkg"
-        with OSGEOManager.open_source(connectionString, is_postgres=True) as postgis_source:
+        with OSGEOManager.open_source(connectionString) as postgis_source:
             ds = ogr.GetDriverByName('GPKG').CreateDataSource(dest_path)
             layers = OSGEOManager.get_source_layers(postgis_source) \
                 if not layernames \
@@ -153,7 +152,7 @@ class OSGEOManager(OSGEOManagerMixin):
                     dest_path, os.W_OK):
                 raise Exception(
                     'maybe destination is not writable or not a directory')
-            with OSGEOManager.open_source(connection_string, is_postgres=True) as ds:
+            with OSGEOManager.open_source(connection_string) as ds:
                 if ds:
                     all_layers = Layer.objects.all()
                     layer_styles = []
@@ -195,5 +194,6 @@ def get_connection():
     password = db['PASSWORD']
     host = store.connection_parameters['host']
     port = store.connection_parameters['port']
-    return OSGEOManager.build_connection_string(host, db_name, user, password,
-                                                int(port) if port else 5432)
+    print(port)
+    return OSGEOManager.build_connection_string(db_name, user, password,
+                                                int(port) if port else 5432, host)

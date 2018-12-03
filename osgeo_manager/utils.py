@@ -1,19 +1,13 @@
 # -*- coding: utf-8 -*-
 import collections
-import errno
-import os
-import time
-from uuid import uuid4
 
 import requests
-from django.conf import settings
 from requests.auth import HTTPBasicAuth
-from slugify import Slugify
 
 from geonode.geoserver.helpers import (get_store, gs_catalog,
                                        ogc_server_settings)
 
-from .constants import DEFAULT_WORKSPACE
+from .constants import DEFAULT_WORKSPACE, PG_REGEX
 from .log import get_logger
 
 logger = get_logger(__name__)
@@ -66,3 +60,7 @@ def read_in_chunks(obj, chunk_size=2048):
     else:
         for i in xrange(0, len(obj), chunk_size):
             yield obj[i:i + chunk_size]
+
+
+def is_postgres_source(source_path):
+    return PG_REGEX.match(source_path)

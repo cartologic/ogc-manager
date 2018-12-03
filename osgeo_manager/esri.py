@@ -15,11 +15,11 @@ from requests.exceptions import ConnectionError
 
 from geonode.people.models import Profile
 
+from .base_manager import OSGEOManager, get_connection
 from .constants import ICON_REL_PATH, SLUGIFIER
 from .exceptions import EsriException, EsriFeatureLayerException
 from .layers import OSGEOLayer
 from .os_utils import get_new_dir
-from .osgeo_manager import OSGEOManager, get_connection
 from .publishers import GeonodePublisher, GeoserverPublisher
 from .serializers import EsriSerializer
 from .utils import urljoin
@@ -110,8 +110,8 @@ class EsriManager(EsriDumper):
                 name = self.get_new_name(es.get_name())
             feature_iter = iter(self)
             first_feature = feature_iter.next()
-            with OSGEOManager.open_source(get_connection(),
-                                          is_postgres=True) as source:
+            logger.error(get_connection())
+            with OSGEOManager.open_source(get_connection()) as source:
                 options = [
                     'OVERWRITE={}'.format("YES" if overwrite else 'NO'),
                     'TEMPORARY={}'.format("OFF" if not temporary else "ON"),
@@ -140,12 +140,14 @@ class EsriManager(EsriDumper):
                             layer, next_feature, gtype, srs=coord_trans)
                     layer.CommitTransaction()
         except (StopIteration, EsriException, EsriFeatureLayerException,
-                ConnectionError), e:
+                ConnectionError) as e:
             logger.debug(e.message)
             if isinstance(e, EsriFeatureLayerException):
                 logger.info(e.message)
             if isinstance(e, EsriException):
                 layer = None
+            logger.error(e.message)
+        except BaseException as e:
             logger.error(e.message)
         finally:
             return gpkg_layer
@@ -154,10 +156,14 @@ class EsriManager(EsriDumper):
                 overwrite=False,
                 temporary=False,
                 launder=False,
-                name=None):
+                name=None,
+                username=None):
         try:
             geonode_layer = None
-            user = Profile.objects.filter(is_superuser=True).first()
+            if not username:
+                user = Profile.objects.filter(is_superuser=True).first()
+            else:
+                user = Profile.objects.get(username=username)
             layer = self.esri_to_postgis(overwrite, temporary, launder, name)
             if not layer:
                 raise Exception("failed to dump layer")

@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 
-from .constants import PG_REGEX, STYLES_TABLE
-
+from .constants import STYLES_TABLE
+from .utils import is_postgres_source
 try:
     from osgeo import ogr
 except ImportError:
@@ -14,19 +14,15 @@ class OSGEOManagerMixin(object):
                                 DB_user,
                                 DB_Pass,
                                 DB_Port=5432, DB_server='localhost'):
-        connectionString = "PG: host=%s port=%d dbname=%s user=%s password=%s" % (
-            DB_server, DB_Port, DB_Name, DB_user, DB_Pass)
+        connectionString = "PG: host={} port={} dbname={} user={} password={}"\
+            .format(
+                DB_server, DB_Port, DB_Name, DB_user, DB_Pass)
         return connectionString
-
-    @staticmethod
-    def is_postgres_source(source_path):
-        return PG_REGEX.match(source_path)
 
     @staticmethod
     @contextmanager
     def open_source(source_path):
-        full_path = source_path
-        source = ogr.Open(full_path)
+        source = ogr.Open(source_path)
         yield source
         source.FlushCache()
         source = None
