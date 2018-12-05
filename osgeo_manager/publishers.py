@@ -21,6 +21,7 @@ from geonode.people.models import Profile
 from geonode.security.views import _perms_info_json
 
 from .constants import DEFAULT_WORKSPACE, ICON_REL_PATH, SLUGIFIER
+from .decorators import validate_config
 from .utils import urljoin
 
 try:
@@ -171,13 +172,13 @@ class GeonodePublisher(object):
         self.workspace = workspace
         self.owner = owner
 
-    def publish(self, layername):
+    def publish(self, config=None):
+        config = validate_config(config_obj=config)
         resource = gs_catalog.get_resource(
-            layername, store=self.store, workspace=self.workspace)
+            config.name, store=self.store, workspace=self.workspace)
         if not resource:
             raise Exception("Cannot Find Layer In Geoserver")
         name = resource.name
-        logger.error(resource.__dict__)
         the_store = resource.store
         workspace = the_store.workspace
         layer = None
@@ -197,7 +198,7 @@ class GeonodePublisher(object):
                     "abstract":
                     (resource.abstract or
                      unicode(_('No abstract provided')).encode('utf-8')),
-                    "owner": self.owner,
+                    "owner": config.get_user(),
                     "uuid": str(uuid.uuid4()),
                     "bbox_x0": Decimal(resource.native_bbox[0]),
                     "bbox_x1": Decimal(resource.native_bbox[1]),
@@ -231,5 +232,8 @@ class GeonodePublisher(object):
             exception_type, error, traceback = sys.exc_info()
         else:
             if layer:
-                layer.set_default_permissions()
+                if config.permissions:
+                    layer.set_permissions(layer.permissions)
+                else:
+                    layer.set_default_permissions()
             return layer

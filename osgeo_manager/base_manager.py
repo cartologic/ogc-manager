@@ -194,6 +194,5 @@ def get_connection():
     password = db['PASSWORD']
     host = store.connection_parameters['host']
     port = store.connection_parameters['port']
-    print(port)
     return OSGEOManager.build_connection_string(db_name, user, password,
                                                 int(port) if port else 5432, host)

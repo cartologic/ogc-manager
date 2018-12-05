@@ -19,3 +19,7 @@ class EsriFeatureLayerException(Exception):
 
 class FormatException(Exception):
     pass
+
+
+class ConfigurationException(Exception):
+    pass

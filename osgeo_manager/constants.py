@@ -4,8 +4,7 @@ from collections import namedtuple
 
 from django.conf import settings
 from slugify import Slugify
-
-from . import DOWNLOAD_PATH, TEMP_PATH
+import os
 
 FORMAT_EXT = {
     "GPKG": '.gpkg',
@@ -26,5 +25,7 @@ ICON_REL_PATH = "workspaces/{}/styles".format(DEFAULT_WORKSPACE)
 LayerPostgisOptions = namedtuple(
     'LayerPostgisOptions', ['skipfailures', 'overwrite', 'append', 'update'])
 POSTGIS_OPTIONS = LayerPostgisOptions(True, True, False, False)
-TEMP_DIR_PATH = TEMP_PATH
-DOWNLOADS_DIR_PATH = DOWNLOAD_PATH
+TEMP_DIR_PATH = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), 'tmp_generator')
+DOWNLOADS_DIR_PATH = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), 'downloads')

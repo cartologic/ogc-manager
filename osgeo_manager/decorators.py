@@ -2,6 +2,8 @@
 from datetime import datetime
 from .exceptions import FormatException
 from .constants import FORMAT_EXT
+from .config import LayerConfig
+from .exceptions import ConfigurationException
 
 
 def ensure_supported_format(func):
@@ -13,6 +15,15 @@ def ensure_supported_format(func):
             raise FormatException("Unsupported Format")
 
     return wrap
+
+
+def validate_config(config_obj=None):
+    if not config_obj:
+        config_obj = LayerConfig()
+    if not isinstance(config_obj, LayerConfig):
+        raise ConfigurationException(
+            "Configuration object should be instance of LayerConfig")
+    return config_obj
 
 
 def time_it(function):
