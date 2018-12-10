@@ -8,10 +8,7 @@ import pipes
 import subprocess
 import time
 
-from django.conf import settings
-
-from geonode.geoserver.helpers import (get_store, gs_catalog,
-                                       ogc_server_settings)
+from geonode.geoserver.helpers import ogc_server_settings
 from geonode.layers.models import Layer
 
 from .constants import DOWNLOADS_DIR_PATH, POSTGIS_OPTIONS
@@ -192,5 +189,6 @@ def get_connection():
     password = db_settings.get('PASSWORD')
     host = db_settings.get('HOST', 'localhost')
     port = db_settings.get('PORT', 5432)
-    return OSGEOManager.build_connection_string(host, db_name, user, password,
-                                                int(port) if port else 5432)
+    return OSGEOManager.build_connection_string(db_name, user, password,
+                                                int(port) if port else 5432,
+                                                host)
