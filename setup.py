@@ -6,7 +6,7 @@ long_description = open('README.md').read()
 setup(
     name='osgeo-manager',
     packages=find_packages(),
-    version='0.2.0',
+    version='0.3.0',
     description='Cartoview is a GIS web mapping application framework to \
     easily share and deploy apps based on Geonode',
     long_description=long_description,
