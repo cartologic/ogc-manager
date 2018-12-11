@@ -24,9 +24,8 @@ setup(
         "Topic :: Scientific/Engineering :: GIS"
     ],
     license="BSD",
-    install_requires=['geonode>=2.8rc11',
-                      'esridump==1.8.0',
-                    #   'python-sld==0.1.0',
+    install_requires=['esridump==1.8.0',
+                      #   'python-sld==0.1.0',
                       'ags2sld==0.1.0'
                       ],
     dependency_links=[
