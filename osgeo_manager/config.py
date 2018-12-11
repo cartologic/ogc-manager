@@ -1,7 +1,9 @@
 from uuid import uuid4
-from .exceptions import ConfigurationException
-from .constants import SLUGIFIER
+
 from geonode.people.models import Profile
+
+from .constants import SLUGIFIER
+from .exceptions import ConfigurationException
 
 
 class LayerConfig(object):
@@ -9,12 +11,12 @@ class LayerConfig(object):
         if not isinstance(config, dict):
             raise ConfigurationException("config_dict should be dict")
         self.config_dict = config
-        self.name = getattr(self.config_dict, 'name', None)
-        self.permissions = getattr(self.config_dict, 'permissions', None)
-        self.overwrite = getattr(self.config_dict, 'overwrite', False)
-        self.temporary = getattr(self.config_dict, 'temporary', False)
-        self.launder = getattr(self.config_dict, 'launder', False)
-        self.username = getattr(self.config_dict, 'username', False)
+        self.name = self.config_dict.get('name', None)
+        self.permissions = self.config_dict.get('permissions', None)
+        self.overwrite = self.config_dict.get('overwrite', False)
+        self.temporary = self.config_dict.get('temporary', False)
+        self.launder = self.config_dict.get('launder', False)
+        self.username = self.config_dict.get('username', False)
 
     def get_user(self):
         if not self.username:
@@ -50,5 +52,5 @@ class LayerConfig(object):
 
     def as_dict(self):
         d = vars(self)
-        d.pop('config_dict')
+        d.pop('config_dict', None)
         return d
