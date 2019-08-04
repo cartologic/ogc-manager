@@ -3,7 +3,10 @@ import re
 from collections import namedtuple
 
 from django.conf import settings
-from slugify import Slugify
+try:
+    from slugify import Slugify as slugify
+except:
+    from slugify import slugify
 import os
 
 FORMAT_EXT = {
@@ -19,7 +22,8 @@ PG_REGEX = re.compile(r"^\s?PG:\s?.*$")
 WORLD_PERMISSION = 0o777
 USER_GROUP_PERMISSION = 0o775
 DEFAULT_WORKSPACE = settings.DEFAULT_WORKSPACE
-SLUGIFIER = Slugify(separator='_')
+def SLUGIFIER(text):
+    return slugify(text, separator='_')
 STYLES_TABLE = "layer_styles"
 ICON_REL_PATH = "workspaces/{}/styles".format(DEFAULT_WORKSPACE)
 LayerPostgisOptions = namedtuple(
