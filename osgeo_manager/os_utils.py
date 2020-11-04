@@ -2,7 +2,7 @@ import os
 import time
 from uuid import uuid4
 
-from log import get_logger
+from cartoview.log_handler import get_logger
 
 logger = get_logger(__name__)
 WORLD_PERMISSION = 0o777
@@ -17,7 +17,7 @@ def create_direcotry(path, mode=WORLD_PERMISSION):
             previous_mask = os.umask(0)
             os.makedirs(path, mode=mode)
         except OSError as e:
-            logger.error(e.message)
+            logger.error(e)
         finally:
             # set the previous mask back
             os.umask(previous_mask)

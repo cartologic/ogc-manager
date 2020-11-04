@@ -177,7 +177,7 @@ class OSGEOManager(OSGEOManagerMixin):
             final_path = dest_path
 
         except Exception as e:
-            logger.error(e.message)
+            logger.error(e)
         finally:
             return final_path
 

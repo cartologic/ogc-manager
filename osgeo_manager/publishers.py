@@ -82,7 +82,7 @@ class GeoserverPublisher(object):
             cascading_delete(gs_catalog, "{}:{}".format(
                 self.workspace, layername))
         except Exception as e:
-            logger.error(e.message)
+            logger.error(e)
 
     def upload_file(self, file, rel_path=ICON_REL_PATH):
         url = urljoin(self.base_url, "rest/", "resource", rel_path,
@@ -108,24 +108,23 @@ class GeoserverPublisher(object):
             timestr = time.strftime("%Y%m%d_%H%M%S")
             return "{}_{}".format(sld_name, timestr)
 
-    def convert_sld_attributes(self, sld_body):
-        contents = BytesIO(str(sld_body))
-        tree = lxml.etree.parse(contents)
+    def convert_sld_attributes(self, sld_path):
+        tree = lxml.etree.parse(sld_path)
         root = tree.getroot()
-        nsmap = {k: v for k, v in root.nsmap.iteritems() if k}
+        nsmap = {k: v for k, v in root.nsmap.items() if k}
         properties = tree.xpath('.//ogc:PropertyName', namespaces=nsmap)
         for prop in properties:
-            value = SLUGIFIER(str(prop.text)).encode('utf-8')
+            value = SLUGIFIER(str(prop.text))
             prop.text = value
         properties = tree.xpath('.//sld:PropertyName', namespaces=nsmap)
         for prop in properties:
-            value = SLUGIFIER(str(prop.text)).encode('utf-8')
+            value = SLUGIFIER(str(prop.text))
             prop.text = value
         return lxml.etree.tostring(tree)
 
-    def create_style(self, name, sld_body, overwrite=True, raw=True):
+    def create_style(self, name, sld_path, overwrite=True, raw=True):
         name = self.get_new_style_name(name)
-        sld_body = self.convert_sld_attributes(sld_body)
+        sld_body = self.convert_sld_attributes(sld_path)
         gs_catalog.create_style(
             name,
             sld_body,
@@ -144,7 +143,7 @@ class GeoserverPublisher(object):
             gs_catalog.save(layer)
             saved = True
         except Exception as e:
-            logger.error(e.message)
+            logger.error(e)
         return saved
 
     def remove_cached(self, typename):
@@ -159,7 +158,7 @@ class GeoserverPublisher(object):
                 pass
             logger.warning("Layer Cache Cleared")
         except BaseException as e:
-            logger.error(e.message)
+            logger.error(e)
 
 
 class GeonodePublisher(object):
@@ -192,12 +191,10 @@ class GeonodePublisher(object):
                     "store": the_store.name,
                     "storeType": the_store.resource_type,
                     "alternate":
-                    "%s:%s" % (workspace.name.encode('utf-8'),
-                               resource.name.encode('utf-8')),
+                    "%s:%s" % (workspace.name, resource.name),
                     "title": (resource.title or 'No title provided'),
                     "abstract":
-                    (resource.abstract or
-                     unicode(_('No abstract provided')).encode('utf-8')),
+                    (resource.abstract or _('No abstract provided')),
                     "owner": config.get_user(),
                     "uuid": str(uuid.uuid4()),
                     "bbox_x0": Decimal(resource.native_bbox[0]),
@@ -228,7 +225,7 @@ class GeonodePublisher(object):
                     gs_catalog.save(resource)
 
         except Exception as e:
-            logger.error(e.message)
+            logger.error(e)
             exception_type, error, traceback = sys.exc_info()
         else:
             if layer:

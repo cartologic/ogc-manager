@@ -36,10 +36,10 @@ def get_store_schema(storename=None):
 
 
 def unicode_converter(data):
-    if isinstance(data, basestring):
+    if isinstance(data, str):
         return str(data)
     elif isinstance(data, collections.Mapping):
-        return dict(map(unicode_converter, data.iteritems()))
+        return dict(map(unicode_converter, data.items()))
     elif isinstance(data, collections.Iterable):
         return type(data)(map(unicode_converter, data))
     else:
@@ -58,7 +58,7 @@ def read_in_chunks(obj, chunk_size=2048):
                 break
             yield data
     else:
-        for i in xrange(0, len(obj), chunk_size):
+        for i in range(0, len(obj), chunk_size):
             yield obj[i:i + chunk_size]
 
 

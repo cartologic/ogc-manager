@@ -149,8 +149,8 @@ class OSGEOLayer(object):
                 for filename in files:
                     absname = os.path.abspath(os.path.join(dirname, filename))
                     arcname = absname[len(abs_src) + 1:]
-                    print 'zipping %s as %s' % (os.path.join(
-                        dirname, filename), arcname)
+                    print('zipping %s as %s' % (os.path.join(
+                        dirname, filename), arcname))
                     zf.write(absname, arcname)
         return zip_path
 
