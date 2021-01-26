@@ -21,8 +21,8 @@ class OSGEOManagerMixin(object):
 
     @staticmethod
     @contextmanager
-    def open_source(source_path):
-        source = ogr.Open(source_path)
+    def open_source(source_path, update_enabled=0):
+        source = ogr.Open(source_path, update_enabled)
         yield source
         source.FlushCache()
         source = None
