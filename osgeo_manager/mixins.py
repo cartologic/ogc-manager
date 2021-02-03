@@ -11,12 +11,12 @@ except ImportError:
 class OSGEOManagerMixin(object):
     @staticmethod
     def build_connection_string(DB_Name,
+                                DB_Schema,
                                 DB_user,
                                 DB_Pass,
                                 DB_Port=5432, DB_server='localhost'):
-        connectionString = "PG: host={} port={} dbname={} user={} password={}"\
-            .format(
-                DB_server, DB_Port, DB_Name, DB_user, DB_Pass)
+        connectionString = "PG: host={} port={} dbname={} active_schema={} user={} password={}"\
+            .format(DB_server, DB_Port, DB_Name, DB_Schema, DB_user, DB_Pass)
         return connectionString
 
     @staticmethod

@@ -182,13 +182,11 @@ class OSGEOManager(OSGEOManagerMixin):
             return final_path
 
 
-def get_connection():
+def get_connection(database_name=None, schema=None):
     db_settings = ogc_server_settings.datastore_db
-    db_name = db_settings.get('NAME')
+    db_name = database_name if database_name else db_settings.get('NAME')
     user = db_settings.get('USER')
     password = db_settings.get('PASSWORD')
     host = db_settings.get('HOST', 'localhost')
     port = db_settings.get('PORT', 5432)
-    return OSGEOManager.build_connection_string(db_name, user, password,
-                                                int(port) if port else 5432,
-                                                host)
+    return OSGEOManager.build_connection_string(db_name, schema, user, password, port, host)
