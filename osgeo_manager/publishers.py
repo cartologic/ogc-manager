@@ -231,7 +231,7 @@ class GeonodePublisher(object):
         else:
             if layer:
                 if config.permissions:
-                    layer.set_permissions(layer.permissions)
+                    layer.set_permissions(config.permissions)
                 else:
                     layer.set_default_permissions()
             return layer
